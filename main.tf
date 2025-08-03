@@ -41,7 +41,7 @@ resource "aws_route_table_association" "a" {
 resource "aws_security_group" "my_sg" {
   name        = "my-security-group"
   description = "Allow SSH"
-  vpc_id      = "vpc-02c67df405ebfbd68"
+  vpc_id      = "vpc-0ab51b1e8e9f80751"
 
   ingress {
     from_port   = 8080
