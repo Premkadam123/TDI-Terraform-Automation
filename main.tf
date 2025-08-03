@@ -31,6 +31,16 @@ resource "aws_route_table" "main_route" {
   }
 }
 
+resource "aws_subnet" "main_subnet" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "172.16.1.0/24"
+  availability_zone       = "us-east-1a"  # Replace with your preferred AZ
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "main-subnet"
+  }
+}
+
 # Associate the route table with the subnet
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.main_subnet.id
