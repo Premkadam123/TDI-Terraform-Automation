@@ -1,5 +1,16 @@
+
 provider "aws" {
   region = var.aws_region
+}
+
+resource "aws_subnet" "main_subnet" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "172.16.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "main-subnet"
+  }
 }
 
 resource "aws_vpc" "main" {
@@ -31,28 +42,19 @@ resource "aws_route_table" "main_route" {
   }
 }
 
-resource "aws_subnet" "main_subnet" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "172.16.1.0/24"
-  availability_zone       = "us-east-1a"  # Replace with your preferred AZ
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "main-subnet"
-  }
-}
-
 # Associate the route table with the subnet
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.main_subnet.id
   route_table_id = aws_route_table.main_route.id
 }
 
+/* New Changes */
+
 #Create security group with firewall rules
 resource "aws_security_group" "my_sg" {
   name        = "my-security-group"
   description = "Allow SSH"
   vpc_id = aws_vpc.main.id
-}
 
   ingress {
     from_port   = 8080
@@ -82,14 +84,18 @@ resource "aws_security_group" "my_sg" {
 }
 
 resource "aws_instance" "myFirstInstance" {
-  ami           = var.ami_id
-  key_name = var.key_name
-  instance_type = var.instance_type
-  vpc_security_group_ids = [aws_security_group.my_sg.id]
-  tags= {
+  ami                         = var.ami_id
+  key_name                    = var.key_name
+  instance_type               = var.instance_type
+  vpc_security_group_ids      = [aws_security_group.my_sg.id]
+  subnet_id                   = aws_subnet.main_subnet.id
+  associate_public_ip_address = true
+
+  tags = {
     Name = var.tag_name
   }
 }
+
 
 # Create Elastic IP address
 resource "aws_eip" "myFirstInstance" {
@@ -99,3 +105,4 @@ tags= {
     Name = "my_elastic_ip"
   }
 }
+
